@@ -12,7 +12,7 @@ pip install argocli
 
 ## Authentication
 
-On first-run, you'll be prompted for an Argo API token. This will be stored in your system credential store (e.g. Keychain on Mac OS) in an items called `argocli`.
+On first-run, you'll be prompted for an Argo API token. This will be stored in your system credential store (e.g. Keychain on Mac OS) in an item called `argocli`.
 
 ## Configuration
 
