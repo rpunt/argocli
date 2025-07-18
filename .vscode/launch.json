@@ -1,0 +1,37 @@
+// filepath: /Users/ryan/git/cac/.vscode/launch.json
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Issue Create",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/argocli/cli/main.py",
+      "args": [
+        "workflow",
+        "status",
+        "--name",
+        "ipu-prod-l65w8"
+        // "--verbose",
+      ],
+      "console": "integratedTerminal",
+      "justMyCode": false,
+      "env": {
+        "PYTHONPATH": "${workspaceFolder}"
+      }
+    },
+    {
+      "name": "Python: pytest",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "pytest",
+      "cwd": "${workspaceFolder}",
+      "args": [
+        "-v"
+      ],
+      "python": "${workspaceFolder}/.venv/bin/python",
+      "console": "integratedTerminal",
+      "justMyCode": false
+    }
+  ]
+}
