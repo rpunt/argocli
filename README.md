@@ -19,7 +19,7 @@ On first-run, you'll be prompted for an Argo API token. This will be stored in y
 On first-run, a configuration file will be generated at `~/.config/argocli/config.yaml`. In this file you'll need to replace the values of `server`, `namespace`, and `username` with appropriate values.
 
 ```yaml
-server: https://your-jira-instance.atlassian.net
+server: https://your-argo-instance.server.tld
 namespace: YOUR_PROJECT_NAMESPACE
 username: your.email@example.com
 ```
