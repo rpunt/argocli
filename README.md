@@ -1,4 +1,4 @@
-# Jira CLI
+# Argo CLI
 
 A command-line interface for interacting with Argo.
 
