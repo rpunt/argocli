@@ -4,8 +4,8 @@ requires-python = ">=3.12"
 
 [[package]]
 name = "argocli"
-version = "0.1.2"
-source = { virtual = "." }
+version = "0.1.4"
+source = { editable = "." }
 dependencies = [
     { name = "cac-core" },
     { name = "packaging" },
@@ -21,7 +21,7 @@ requires-dist = [
 
 [[package]]
 name = "cac-core"
-version = "0.4.1"
+version = "0.5.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "keyring" },
@@ -30,9 +30,9 @@ dependencies = [
     { name = "requests" },
     { name = "tabulate" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/55/f6/b6676ff44c2a38b532c42c383bcd24e4e452e4326e0ca0eca04aa575a935/cac_core-0.4.1.tar.gz", hash = "sha256:6bb12e19aa845a158201e42b8ef0173234f63940e0a3e45fb5df689f7ea5dc20", size = 19631, upload-time = "2025-05-06T15:12:03.512Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/13/55/4c4e65e8f435cc065f6d7be5cf5133d2e6ab18a72360256ebd87c6dede4d/cac_core-0.5.0.tar.gz", hash = "sha256:80a4c0863a46d1ce6db37488fb7bcc5262301802fc6a956eff20e89d95344f2e", size = 19920, upload-time = "2025-07-21T20:11:11.697Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/df/b0/c33832136e6fec7b6f70f487e57ca261d983454eac21b9c9c010a6dba782/cac_core-0.4.1-py3-none-any.whl", hash = "sha256:dad2cb23708f0bb410c14666b105c294c6f5008b6cd36d479626f4c0715ab3ab", size = 21137, upload-time = "2025-05-06T15:12:01.76Z" },
+    { url = "https://files.pythonhosted.org/packages/a0/d3/2f0883ef4efc1e4072153f67d43df45a73febc43b055edf3de8789d588d3/cac_core-0.5.0-py3-none-any.whl", hash = "sha256:36612c1a02faef2ce1e47242bd7df87cb380dba69da5f88e8b9df80430eaa58b", size = 21443, upload-time = "2025-07-21T20:11:10.578Z" },
 ]
 
 [[package]]

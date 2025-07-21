@@ -1,6 +1,6 @@
 [project]
 name = "argocli"
-version = "0.1.2"
+version = "0.1.4"
 description = "A command-line interface for Argo Workflows"
 readme = "README.md"
 requires-python = ">=3.12"
@@ -12,3 +12,6 @@ dependencies = [
 
 [project.scripts]
 argocli = "argocli.cli.main:main"
+
+[tool.uv]
+package = true
