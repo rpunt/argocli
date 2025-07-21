@@ -1,6 +1,17 @@
 #!/usr/bin/env python
 # pylint: disable=line-too-long
 
+"""
+Main entry point for the Argo CLI tool.
+
+This module provides the command-line interface for interacting with Argo Workflows.
+It dynamically discovers commands and actions from the commands directory structure,
+sets up appropriate argument parsers, and dispatches commands to their handlers.
+
+The CLI follows a nested command pattern (e.g., 'argocli workflow list') and
+supports automatic discovery of plugins and extensions without modifying this core file.
+"""
+
 import argparse
 import importlib
 import sys

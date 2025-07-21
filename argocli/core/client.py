@@ -39,7 +39,7 @@ class ArgoClient:
         Returns:
             The workflow object
         """
-        log.debug(f"Getting workflow {name} from server {self.server}")
+        log.debug("Getting workflow %s from server %s", name, self.server)
         response = requests.get(
             f"{self.server}/api/v1/workflows/{self.namespace}/{name}",
             headers={"Authorization": f"Bearer {self.api_token}"},
@@ -48,5 +48,24 @@ class ArgoClient:
         if response.status_code == 200:
             return response.json()
         else:
-            log.error(f"Failed to get workflow {name}: {response.status_code} {response.text}")
+            log.error("Failed to get workflow %s: %s %s", name, response.status_code, response.text)
             return None
+
+    def list_workflows(self):
+        """
+        List all workflows in the namespace.
+
+        Returns:
+            A list of workflow objects
+        """
+        log.debug("Listing workflows from server %s", self.server)
+        response = requests.get(
+            f"{self.server}/api/v1/workflows/{self.namespace}",
+            headers={"Authorization": f"Bearer {self.api_token}"},
+            timeout=10
+        )
+        if response.status_code == 200:
+            return response.json().get("items", [])
+        else:
+            log.error("Failed to list workflows: %s %s", response.status_code, response.text)
+            return []
