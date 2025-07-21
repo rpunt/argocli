@@ -1,11 +1,11 @@
 [project]
 name = "argocli"
-version = "0.1.3"
+version = "0.1.4"
 description = "A command-line interface for Argo Workflows"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-    "cac-core>=0.4.1",
+    "cac-core>=0.5.0",
     "packaging>=25.0",
     "requests>=2.32.4",
 ]
