@@ -4,7 +4,7 @@ requires-python = ">=3.12"
 
 [[package]]
 name = "argocli"
-version = "0.1.4"
+version = "0.2.0"
 source = { editable = "." }
 dependencies = [
     { name = "cac-core" },
@@ -14,7 +14,7 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "cac-core", specifier = ">=0.4.1" },
+    { name = "cac-core", specifier = ">=0.5.0" },
     { name = "packaging", specifier = ">=25.0" },
     { name = "requests", specifier = ">=2.32.4" },
 ]

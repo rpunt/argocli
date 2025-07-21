@@ -3,7 +3,7 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Issue Create",
+      "name": "Workflow Status",
       "type": "debugpy",
       "request": "launch",
       "program": "${workspaceFolder}/argocli/cli/main.py",
@@ -14,6 +14,7 @@
         "ipu-prod-l65w8"
         // "--verbose",
       ],
+      // "python": "${workspaceFolder}/.venv/bin/python",
       "console": "integratedTerminal",
       "justMyCode": false,
       "env": {
@@ -21,13 +22,38 @@
       }
     },
     {
-      "name": "Python: pytest",
+      "name": "Workflow View",
       "type": "debugpy",
       "request": "launch",
-      "module": "pytest",
-      "cwd": "${workspaceFolder}",
+      "program": "${workspaceFolder}/argocli/cli/main.py",
       "args": [
-        "-v"
+        "workflow",
+        "view",
+        "--name",
+        "ipu-prod-l65w8",
+        "--output",
+        "json"
+        // "--verbose",
+      ],
+      // "python": "${workspaceFolder}/.venv/bin/python",
+      "console": "integratedTerminal",
+      "justMyCode": false,
+      "env": {
+        "PYTHONPATH": "${workspaceFolder}"
+      }
+    },
+    {
+      "name": "Workflow List",
+      "type": "debugpy",
+      "request": "launch",
+      // "module": "pytest",
+      "program": "${workspaceFolder}/argocli/cli/main.py",
+      "args": [
+        "workflow",
+        "list",
+        "-n",
+        "ipu"
+        // "--verbose",
       ],
       "python": "${workspaceFolder}/.venv/bin/python",
       "console": "integratedTerminal",

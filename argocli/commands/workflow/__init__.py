@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-
+# pylint: disable=protected-access
 """
 Base module for all issue-related commands.
 

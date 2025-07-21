@@ -32,10 +32,18 @@ The Argo CLI follows a command-action pattern for all operations:
 argocli <command> <action> [options]
 ```
 
+### Available Commands
+
+| Command | Action | Description |
+|---------|--------|-------------|
+| workflow | status | Show the status of a specific workflow |
+| workflow | list | List all workflows with optional name filtering |
+| workflow | view | View detailed information about a specific workflow |
+
 ### Global Options
 
 - `--verbose`: Enable debug output
-<!-- - `--output [table|json]`: Control output format (default table) -->
+- `--output [table|json]`: Control output format (default: table)
 - `--help`: Show command help
 <!-- --suppress-output: Hide command output -->
 <!-- --version: Display version information -->
@@ -48,6 +56,36 @@ Show the status of a workflow:
 
 ```bash
 argocli workflow status -n WORKFLOW_NAME
+```
+
+List all workflows:
+
+```bash
+argocli workflow list
+```
+
+Filter workflows by name (fuzzy match):
+
+```bash
+argocli workflow list -n cron
+```
+
+List workflows with JSON output:
+
+```bash
+argocli workflow list --output json
+```
+
+View detailed information about a specific workflow:
+
+```bash
+argocli workflow view -n WORKFLOW_NAME
+```
+
+View workflow information in JSON format (this will dump the entire workflow object, which is useful for further API work):
+
+```bash
+argocli workflow view -n WORKFLOW_NAME --output json
 ```
 
 ## Development
