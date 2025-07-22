@@ -171,6 +171,8 @@ class WorkflowView(ArgoWorkflowCommand):
 
             # Format the datetime in a user-friendly way
             return local_dt.strftime('%Y-%m-%d %H:%M:%S')
-        except Exception:
+        except Exception as e:
+            # Log the error for debugging purposes
+            print(f"Error parsing timestamp: {str(e)}")
             # If there's any error parsing, return the original timestamp
             return timestamp
