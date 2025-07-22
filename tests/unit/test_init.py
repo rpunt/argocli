@@ -35,7 +35,6 @@ def test_module_init_with_env_vars(mock_credential_manager):
     with patch.dict(os.environ, test_env):
         # Reimport to test with environment variables
         import importlib
-        import argocli
         importlib.reload(argocli)
 
         # Check that environment variables were used
