@@ -24,6 +24,22 @@ namespace: YOUR_PROJECT_NAMESPACE
 username: your.email@example.com
 ```
 
+### Environment Variables
+
+You can also override configuration values using environment variables. The naming pattern is:
+
+```bash
+ARGOCLI_<UPPERCASE_CONFIG_KEY>
+```
+
+For example:
+
+- `ARGOCLI_SERVER` overrides the `server` config option
+- `ARGOCLI_NAMESPACE` overrides the `namespace` config option
+- `ARGOCLI_USERNAME` overrides the `username` config option
+
+This is useful for CI/CD pipelines or for switching between different Argo instances without modifying the config file.
+
 ## Usage
 
 The Argo CLI follows a command-action pattern for all operations:
@@ -101,15 +117,39 @@ source .venv/bin/activate
 
 # Run tests
 uv run pytest
+
+# Run tests with coverage report
+uv run pytest --cov=argocli --cov-report=term
 ```
 
-Please note that tests are still WIP
+### Testing
+
+The project uses pytest for unit testing. Tests are organized in a structure that mirrors the main codebase:
+
+- `tests/unit/` - Unit tests
+  - `commands/` - Tests for command implementations
+    - `workflow/` - Tests for workflow-related commands
+  - `core/` - Tests for core functionality
+
+To run specific tests:
+
+```bash
+# Run tests in a specific file
+pytest tests/unit/core/test_client.py
+
+# Run a specific test class
+pytest tests/unit/commands/workflow/test_list.py::TestWorkflowList
+
+# Run a specific test method
+pytest tests/unit/commands/workflow/test_list.py::TestWorkflowList::test_execute_filtered_list
+```
 
 ### Project Structure
 
 - `argocli/commands/` - Command implementations
   - `workflow/` - Workflow-related commands
 - `argocli/cli/` - CLI entry point and argument parsing
+- `tests/` - Test directory
 
 ### Adding New Commands
 

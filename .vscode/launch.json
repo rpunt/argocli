@@ -30,9 +30,7 @@
         "workflow",
         "view",
         "--name",
-        "ipu-prod-l65w8",
-        "--output",
-        "json"
+        "ipu-prod-vpg7x"
         // "--verbose",
       ],
       // "python": "${workspaceFolder}/.venv/bin/python",
