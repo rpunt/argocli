@@ -116,7 +116,7 @@ class WorkflowView(ArgoWorkflowCommand):
                     if completed_tasks:
                         # Sort by finished time (most recent first) and take only the 3 most recent
                         completed_tasks.sort(key=lambda x: x.get('finished', ''), reverse=False)
-                        # for task in completed_tasks[:3]:  # Show only 3 most recent
+                        # TODO: Consider limiting to the 3 most recent completed tasks in the future.
                         for task in completed_tasks:
                             models.append(cac.model.Model(task))
 
