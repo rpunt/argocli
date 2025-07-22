@@ -1,19 +1,18 @@
-# pylint: disable=attribute-defined-outside-init
+# pylint: disable=attribute-defined-outside-init, import-outside-toplevel
 """
 Unit tests for the module initialization.
 """
 
 from unittest.mock import patch, MagicMock
+import importlib
 import os
+import argocli
 
 # Test the module's initialization by importing it
 def test_module_init_in_ci():
     """Test that the module initializes correctly in CI environments."""
     # Set up CI environment
     with patch.dict(os.environ, {"CI": "true"}):
-        # This import should not fail in CI environment
-        import argocli
-
         # Verify the client was set up with test values
         assert hasattr(argocli, 'ARGO_CLIENT')
 
@@ -34,7 +33,6 @@ def test_module_init_with_env_vars(mock_credential_manager):
 
     with patch.dict(os.environ, test_env):
         # Reimport to test with environment variables
-        import importlib
         importlib.reload(argocli)
 
         # Check that environment variables were used
