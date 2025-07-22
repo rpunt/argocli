@@ -15,9 +15,9 @@ the currently running tasks, including their names, types, and start times.
 This helps users track the progress of ongoing workflows more effectively.
 """
 
+from datetime import datetime
 import cac_core as cac
 from argocli.commands.workflow import ArgoWorkflowCommand
-from datetime import datetime
 
 class WorkflowView(ArgoWorkflowCommand):
     """
