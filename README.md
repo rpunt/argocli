@@ -24,6 +24,22 @@ namespace: YOUR_PROJECT_NAMESPACE
 username: your.email@example.com
 ```
 
+### Environment Variables
+
+You can also override configuration values using environment variables. The naming pattern is:
+
+```bash
+ARGOCLI_<UPPERCASE_CONFIG_KEY>
+```
+
+For example:
+
+- `ARGOCLI_SERVER` overrides the `server` config option
+- `ARGOCLI_NAMESPACE` overrides the `namespace` config option
+- `ARGOCLI_USERNAME` overrides the `username` config option
+
+This is useful for CI/CD pipelines or for switching between different Argo instances without modifying the config file.
+
 ## Usage
 
 The Argo CLI follows a command-action pattern for all operations:
