@@ -27,6 +27,8 @@ except Exception:
 log = cac.logger.new(__name__)
 log.debug("Initializing %s version %s", __name__, __version__)
 
+# Initialize config with module name
+# Environment variables with prefix ARGOCLI_ will automatically be loaded
 CONFIG = cac.config.Config(__name__)
 
 log.debug("user config path: %s", CONFIG.config_file)
@@ -34,8 +36,9 @@ log.debug("user config path: %s", CONFIG.config_file)
 # Check if we're running in a CI/test environment
 IN_CI = os.environ.get('CI') == 'true' or 'PYTEST_CURRENT_TEST' in os.environ
 
-# The cac_core Config automatically loads values from environment variables using this pattern:
-#   <PACKAGE_NAME>_<UPPERCASE_CONFIG_KEY>
+# The cac_core Config automatically loads values from environment variables
+# Environment variable pattern:
+#   <MODULE_NAME_UPPERCASE>_<UPPERCASE_CONFIG_KEY>
 # For example:
 #   - ARGOCLI_SERVER for the "server" config option
 #   - ARGOCLI_NAMESPACE for the "namespace" config option
