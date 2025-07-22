@@ -6,6 +6,7 @@ readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "cac-core>=0.5.1",
+    "datetime>=5.5",
     "packaging>=25.0",
     "requests>=2.32.4",
 ]

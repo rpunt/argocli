@@ -17,6 +17,7 @@ This helps users track the progress of ongoing workflows more effectively.
 
 import cac_core as cac
 from argocli.commands.workflow import ArgoWorkflowCommand
+from datetime import datetime
 
 class WorkflowView(ArgoWorkflowCommand):
     """
@@ -43,13 +44,17 @@ class WorkflowView(ArgoWorkflowCommand):
             print(f"Workflow '{args.name}' not found.")
             return
 
+        # Convert UTC timestamps to local time
+        started_time = self._convert_to_local_time(workflow['status'].get('startedAt')) if 'startedAt' in workflow['status'] else None
+        finished_time = self._convert_to_local_time(workflow['status'].get('finishedAt')) if 'finishedAt' in workflow['status'] else None
+
         # Basic workflow information for all outputs
         model_data = {
             "name": workflow['metadata']['name'],
             "status": workflow['status']['phase'],
             "progress": workflow['status'].get('progress', 0),
-            "started": workflow['status']['startedAt'] if 'startedAt' in workflow['status'] else None,
-            "finished": workflow['status']['finishedAt'] if 'finishedAt' in workflow['status'] else None,
+            "started": started_time,
+            "finished": finished_time,
         }
 
         # Create a printer for output
@@ -71,6 +76,7 @@ class WorkflowView(ArgoWorkflowCommand):
                 if 'nodes' in workflow['status']:
                     running_tasks = []
                     completed_tasks = []
+                    pending_tasks = []
 
                     # Extract task information directly
                     for _, node in workflow['status']['nodes'].items():
@@ -81,7 +87,7 @@ class WorkflowView(ArgoWorkflowCommand):
                                     'name': f"↪ {node.get('displayName', '')}",  # Indent to show it's a subtask
                                     'status': f"Running ({node.get('type', '')})",
                                     'progress': node.get('progress', ''),
-                                    'started': node.get('startedAt', ''),
+                                    'started': self._convert_to_local_time(node.get('startedAt', '')),
                                     'finished': ''
                                 }
                                 running_tasks.append(task_model)
@@ -91,22 +97,40 @@ class WorkflowView(ArgoWorkflowCommand):
                                     'name': f"↪ {node.get('displayName', '')}",
                                     'status': f"{node.get('phase', '')} ({node.get('type', '')})",
                                     'progress': node.get('progress', '100%') if node.get('phase') == 'Succeeded' else '',
-                                    'started': node.get('startedAt', ''),
-                                    'finished': node.get('finishedAt', '')
+                                    'started': self._convert_to_local_time(node.get('startedAt', '')),
+                                    'finished': self._convert_to_local_time(node.get('finishedAt', ''))
                                 }
                                 completed_tasks.append(task_model)
+                            elif node.get('phase') == 'Pending':
+                                # Add pending tasks (not yet started)
+                                task_model = {
+                                    'name': f"↪ {node.get('displayName', '')}",
+                                    'status': f"Pending ({node.get('type', '')})",
+                                    'progress': '0%',
+                                    'started': '-',
+                                    'finished': '-'
+                                }
+                                pending_tasks.append(task_model)
 
-                    # Sort tasks
+                    # Sort and add tasks to models list - order: completed, running, pending
+                    if completed_tasks:
+                        # Sort by finished time (most recent first) and take only the 3 most recent
+                        completed_tasks.sort(key=lambda x: x.get('finished', ''), reverse=False)
+                        # for task in completed_tasks[:3]:  # Show only 3 most recent
+                        for task in completed_tasks:
+                            models.append(cac.model.Model(task))
+
                     if running_tasks:
                         running_tasks.sort(key=lambda x: x.get('started', ''))
                         # Add all running tasks to the models list
                         for task in running_tasks:
                             models.append(cac.model.Model(task))
 
-                    if completed_tasks:
-                        # Sort by finished time (most recent first) and take only the 3 most recent
-                        completed_tasks.sort(key=lambda x: x.get('finished', ''), reverse=True)
-                        for task in completed_tasks[:3]:  # Show only 3 most recent
+                    if pending_tasks:
+                        # Sort pending tasks by name (since they don't have start times)
+                        pending_tasks.sort(key=lambda x: x.get('name', ''))
+                        # Add all pending tasks to the models list
+                        for task in pending_tasks:
                             models.append(cac.model.Model(task))
 
                 # Print all models as a single table
@@ -122,7 +146,31 @@ class WorkflowView(ArgoWorkflowCommand):
                     "name": workflow['metadata']['name'],
                     "status": workflow['status']['phase'],
                     "progress": workflow['status'].get('progress', 0),
-                    "started": workflow['status']['startedAt'] if 'startedAt' in workflow['status'] else None,
-                    "finished": workflow['status']['finishedAt'] if 'finishedAt' in workflow['status'] else None,
+                    "started": started_time,
+                    "finished": finished_time,
                 })
                 printer.print_models(basic_model)
+
+    def _convert_to_local_time(self, timestamp):
+        """
+        Convert a UTC ISO timestamp to local time.
+        Returns a formatted string in the local timezone.
+        """
+        if not timestamp:
+            return timestamp
+
+        try:
+            # Parse the ISO 8601 timestamp
+            if timestamp.endswith('Z'):
+                timestamp = timestamp.replace('Z', '+00:00')
+
+            dt = datetime.fromisoformat(timestamp)
+
+            # Convert to local time
+            local_dt = dt.astimezone()
+
+            # Format the datetime in a user-friendly way
+            return local_dt.strftime('%Y-%m-%d %H:%M:%S')
+        except Exception:
+            # If there's any error parsing, return the original timestamp
+            return timestamp
