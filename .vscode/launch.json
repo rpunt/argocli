@@ -41,6 +41,25 @@
       }
     },
     {
+      "name": "Workflow Browse",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/argocli/cli/main.py",
+      "args": [
+        "workflow",
+        "browse",
+        "--name",
+        "ipu-prod-g2gqd"
+        // "--verbose",
+      ],
+      // "python": "${workspaceFolder}/.venv/bin/python",
+      "console": "integratedTerminal",
+      "justMyCode": false,
+      "env": {
+        "PYTHONPATH": "${workspaceFolder}"
+      }
+    },
+    {
       "name": "Workflow List",
       "type": "debugpy",
       "request": "launch",
