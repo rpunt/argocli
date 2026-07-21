@@ -30,11 +30,7 @@ class WorkflowStatus(ArgoWorkflowCommand):
         """
         Execute the command to check the workflow status.
         """
-        client = self.argo_client
-        workflow = client.get_workflow(args.name)
-        if not workflow:
-            print(f"Workflow '{args.name}' not found.")
-            return
+        workflow = self.argo_client.get_workflow(args.name)
 
         model = cac.model.Model(
             {
@@ -45,3 +41,4 @@ class WorkflowStatus(ArgoWorkflowCommand):
 
         printer = cac.output.Output(args)
         printer.print_models(model)
+        return 0

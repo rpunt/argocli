@@ -6,7 +6,7 @@
       "name": "Workflow Status",
       "type": "debugpy",
       "request": "launch",
-      "program": "${workspaceFolder}/argocli/cli/main.py",
+      "module": "argocli",
       "args": [
         "workflow",
         "status",
@@ -25,7 +25,7 @@
       "name": "Workflow View",
       "type": "debugpy",
       "request": "launch",
-      "program": "${workspaceFolder}/argocli/cli/main.py",
+      "module": "argocli",
       "args": [
         "workflow",
         "view",
@@ -44,7 +44,7 @@
       "name": "Workflow Browse",
       "type": "debugpy",
       "request": "launch",
-      "program": "${workspaceFolder}/argocli/cli/main.py",
+      "module": "argocli",
       "args": [
         "workflow",
         "browse",
@@ -64,7 +64,7 @@
       "type": "debugpy",
       "request": "launch",
       // "module": "pytest",
-      "program": "${workspaceFolder}/argocli/cli/main.py",
+      "module": "argocli",
       "args": [
         "workflow",
         "list",

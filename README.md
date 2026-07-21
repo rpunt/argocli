@@ -148,11 +148,13 @@ pytest tests/unit/commands/workflow/test_list.py::TestWorkflowList::test_execute
 
 - `argocli/commands/` - Command implementations
   - `workflow/` - Workflow-related commands
-- `argocli/cli/` - CLI entry point and argument parsing
+- `argocli/__init__.py` - Console-script entry point (`make_main`) and lazy `CONFIG`/`ARGO_CLIENT` singletons
 - `tests/` - Test directory
+
+Command discovery, argument parsing, and dispatch are provided by the shared [`cac-core`](https://pypi.org/project/cac-core/) framework.
 
 ### Adding New Commands
 
 1. Create a new action module in the appropriate command directory.
-2. Define a class that inherits from the command's base class.
-3. Implement `define_arguments()` and `execute()` methods.
+2. Define a class that inherits from the command's base class, named `{Command}{Action}` (e.g. `commands/workflow/list.py` → `WorkflowList`).
+3. Implement `define_arguments()` and `execute()`. `execute()` should return an `int` exit code (or `None` for success) and may raise; the framework maps exceptions to exit codes.

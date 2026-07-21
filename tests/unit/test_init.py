@@ -1,43 +1,94 @@
-# pylint: disable=attribute-defined-outside-init, import-outside-toplevel
+# pylint: disable=protected-access, import-outside-toplevel
 """
-Unit tests for the module initialization.
+Integration tests for argocli module initialization.
+
+Tests config loading, credential retrieval, lazy attribute access, and the
+error paths in _initialize_client.
 """
 
-from unittest.mock import patch, MagicMock
-import importlib
 import os
-import argocli
 
-# Test the module's initialization by importing it
-def test_module_init_in_ci():
-    """Test that the module initializes correctly in CI environments."""
-    # Set up CI environment
-    with patch.dict(os.environ, {"CI": "true"}):
-        # Verify the client was set up with test values
-        assert hasattr(argocli, 'ARGO_CLIENT')
+import pytest
 
-@patch('cac_core.credentialmanager.CredentialManager')
-def test_module_init_with_env_vars(mock_credential_manager):
-    """Test that the module uses environment variables correctly."""
-    # Mock credential manager
-    mock_instance = MagicMock()
-    mock_instance.get_credential.return_value = "test-token"
-    mock_credential_manager.return_value = mock_instance
 
-    # Set environment variables
-    test_env = {
-        "ARGOCLI_SERVER": "https://custom-server.example.com",
-        "ARGOCLI_NAMESPACE": "custom-namespace",
-        "ARGOCLI_USERNAME": "custom-user"
-    }
+class TestModuleInitialization:
+    """Tests for lazy module initialization."""
 
-    with patch.dict(os.environ, test_env):
-        # Reimport to test with environment variables
-        importlib.reload(argocli)
+    def test_initialize_success(self):
+        """_initialize() sets up config and client state."""
+        import argocli
 
-        # Check that environment variables were used
+        argocli._initialized = False
+        argocli._module_state.clear()
+
+        argocli._initialize()
+
+        assert argocli._initialized is True
+        assert "CONFIG" in argocli._module_state
+        assert "ARGO_CLIENT" in argocli._module_state
+
+        config = argocli._module_state["CONFIG"]
+        assert config.get("server") == os.environ["ARGOCLI_SERVER"]
+        assert config.get("namespace") == os.environ["ARGOCLI_NAMESPACE"]
+        assert config.get("username") == os.environ["ARGOCLI_USERNAME"]
+
+    def test_lazy_attribute_access(self):
+        """Accessing CONFIG/ARGO_CLIENT triggers initialization."""
+        import argocli
         from argocli.core.client import ArgoClient
-        assert isinstance(argocli.ARGO_CLIENT, ArgoClient)
-        assert argocli.argo_server == "https://custom-server.example.com"
-        assert argocli.argo_namespace == "custom-namespace"
-        assert argocli.argo_username == "custom-user"
+
+        argocli._initialized = False
+        argocli._module_state.clear()
+
+        client = argocli.ARGO_CLIENT
+        assert isinstance(client, ArgoClient)
+        assert argocli._initialized is True
+
+        config = argocli.CONFIG
+        assert config.get("server") == os.environ["ARGOCLI_SERVER"]
+
+    def test_invalid_attribute_access(self):
+        """Accessing an unknown attribute raises AttributeError."""
+        import argocli
+
+        with pytest.raises(AttributeError, match="has no attribute 'INVALID_ATTR'"):
+            _ = argocli.INVALID_ATTR
+
+    def test_initialize_idempotent(self):
+        """Calling _initialize() multiple times is safe."""
+        import argocli
+
+        argocli._initialize()
+        argocli._initialize()
+
+        assert argocli._initialized is True
+        assert "ARGO_CLIENT" in argocli._module_state
+
+
+class TestClientInitErrors:
+    """Error paths in _initialize_client (missing credentials)."""
+
+    @pytest.fixture
+    def reset_client_state(self):
+        """Force _initialize_client to re-run and clean up afterward."""
+        import argocli
+
+        argocli._module_state.pop("ARGO_CLIENT", None)
+        argocli._initialized = False
+        yield
+        argocli._module_state.pop("ARGO_CLIENT", None)
+        argocli._initialized = False
+
+    def test_missing_token_exits(self, reset_client_state, monkeypatch):
+        """No stored credential -> hard exit with a clear message."""
+        import cac_core as cac
+        import argocli
+
+        monkeypatch.setattr(
+            cac.credentialmanager.CredentialManager,
+            "get_credential",
+            lambda self, *a, **k: None,
+        )
+        with pytest.raises(SystemExit) as exc:
+            argocli._initialize_client()
+        assert exc.value.code == 1

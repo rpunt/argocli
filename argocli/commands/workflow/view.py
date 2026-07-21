@@ -38,118 +38,79 @@ class WorkflowView(ArgoWorkflowCommand):
         """
         Execute the command to check the workflow status.
         """
-        client = self.argo_client
-        workflow = client.get_workflow(args.name)
-        if not workflow:
-            print(f"Workflow '{args.name}' not found.")
-            return
+        workflow = self.argo_client.get_workflow(args.name)
+
+        # Create a printer for output
+        printer = cac.output.Output(args)
+
+        if args.output == "json":
+            # For JSON output, use the full workflow data
+            printer.print_models(cac.model.Model(workflow))
+            return 0
 
         # Convert UTC timestamps to local time
         started_time = self._convert_to_local_time(workflow['status'].get('startedAt')) if 'startedAt' in workflow['status'] else None
         finished_time = self._convert_to_local_time(workflow['status'].get('finishedAt')) if 'finishedAt' in workflow['status'] else None
 
-        # Basic workflow information for all outputs
-        model_data = {
-            "name": workflow['metadata']['name'],
-            "status": workflow['status']['phase'],
-            "progress": workflow['status'].get('progress', 0),
-            "started": started_time,
-            "finished": finished_time,
-        }
-
-        # Create a printer for output
-        printer = cac.output.Output(args)
-
-        try:
-            if args.output == "json":
-                # For JSON output, use the full workflow data
-                model = cac.model.Model(workflow)
-                printer.print_models(model)
-            else:
-                # For other formats, prepare models with workflow and task information
-                models = []
-
-                # Start with the workflow base information
-                models.append(cac.model.Model(model_data))
-
-                # If we have nodes, add the task information as additional table rows
-                if 'nodes' in workflow['status']:
-                    running_tasks = []
-                    completed_tasks = []
-                    pending_tasks = []
-
-                    # Extract task information directly
-                    for _, node in workflow['status']['nodes'].items():
-                        if 'displayName' in node and node.get('type') != 'StepGroup' and node.get('type') != 'Steps':
-                            if node.get('phase') == 'Running':
-                                # Create a task model that looks like a workflow row but with task info
-                                task_model = {
-                                    'name': f"↪ {node.get('displayName', '')}",  # Indent to show it's a subtask
-                                    'status': f"Running ({node.get('type', '')})",
-                                    'progress': node.get('progress', ''),
-                                    'started': self._convert_to_local_time(node.get('startedAt', '')),
-                                    'finished': ''
-                                }
-                                running_tasks.append(task_model)
-                            elif node.get('phase') in ('Succeeded', 'Failed') and 'finishedAt' in node:
-                                # Add only recent completions (we'll sort and limit later)
-                                task_model = {
-                                    'name': f"↪ {node.get('displayName', '')}",
-                                    'status': f"{node.get('phase', '')} ({node.get('type', '')})",
-                                    'progress': node.get('progress', '100%') if node.get('phase') == 'Succeeded' else '',
-                                    'started': self._convert_to_local_time(node.get('startedAt', '')),
-                                    'finished': self._convert_to_local_time(node.get('finishedAt', ''))
-                                }
-                                completed_tasks.append(task_model)
-                            elif node.get('phase') == 'Pending':
-                                # Add pending tasks (not yet started)
-                                task_model = {
-                                    'name': f"↪ {node.get('displayName', '')}",
-                                    'status': f"Pending ({node.get('type', '')})",
-                                    'progress': '0%',
-                                    'started': '-',
-                                    'finished': '-'
-                                }
-                                pending_tasks.append(task_model)
-
-                    # Sort and add tasks to models list - order: completed, running, pending
-                    if completed_tasks:
-                        # Sort by finished time (most recent first) and take only the 3 most recent
-                        completed_tasks.sort(key=lambda x: x.get('finished', ''), reverse=False)
-                        # TODO: Consider limiting to the 3 most recent completed tasks in the future.
-                        for task in completed_tasks:
-                            models.append(cac.model.Model(task))
-
-                    if running_tasks:
-                        running_tasks.sort(key=lambda x: x.get('started', ''))
-                        # Add all running tasks to the models list
-                        for task in running_tasks:
-                            models.append(cac.model.Model(task))
-
-                    if pending_tasks:
-                        # Sort pending tasks by name (since they don't have start times)
-                        pending_tasks.sort(key=lambda x: x.get('name', ''))
-                        # Add all pending tasks to the models list
-                        for task in pending_tasks:
-                            models.append(cac.model.Model(task))
-
-                # Print all models as a single table
-                printer.print_models(models)
-
-        except Exception as e:
-            # If there's an error, log it but don't crash
-            print(f"Warning: Error displaying detailed workflow information: {str(e)}")
-
-            # Create a simple model with just the basic information if we haven't printed it yet
-            if args.output == "json":
-                basic_model = cac.model.Model({
+        # Start with the workflow base information
+        models = [
+            cac.model.Model(
+                {
                     "name": workflow['metadata']['name'],
                     "status": workflow['status']['phase'],
                     "progress": workflow['status'].get('progress', 0),
                     "started": started_time,
                     "finished": finished_time,
-                })
-                printer.print_models(basic_model)
+                }
+            )
+        ]
+
+        # If we have nodes, add the task information as additional table rows
+        if 'nodes' in workflow['status']:
+            running_tasks = []
+            completed_tasks = []
+            pending_tasks = []
+
+            # Extract task information directly
+            for _, node in workflow['status']['nodes'].items():
+                if 'displayName' in node and node.get('type') != 'StepGroup' and node.get('type') != 'Steps':
+                    if node.get('phase') == 'Running':
+                        # Create a task model that looks like a workflow row but with task info
+                        running_tasks.append({
+                            'name': f"↪ {node.get('displayName', '')}",  # Indent to show it's a subtask
+                            'status': f"Running ({node.get('type', '')})",
+                            'progress': node.get('progress', ''),
+                            'started': self._convert_to_local_time(node.get('startedAt', '')),
+                            'finished': ''
+                        })
+                    elif node.get('phase') in ('Succeeded', 'Failed') and 'finishedAt' in node:
+                        completed_tasks.append({
+                            'name': f"↪ {node.get('displayName', '')}",
+                            'status': f"{node.get('phase', '')} ({node.get('type', '')})",
+                            'progress': node.get('progress', '100%') if node.get('phase') == 'Succeeded' else '',
+                            'started': self._convert_to_local_time(node.get('startedAt', '')),
+                            'finished': self._convert_to_local_time(node.get('finishedAt', ''))
+                        })
+                    elif node.get('phase') == 'Pending':
+                        # Add pending tasks (not yet started)
+                        pending_tasks.append({
+                            'name': f"↪ {node.get('displayName', '')}",
+                            'status': f"Pending ({node.get('type', '')})",
+                            'progress': '0%',
+                            'started': '-',
+                            'finished': '-'
+                        })
+
+            # Add tasks to models list - order: completed, running, pending
+            completed_tasks.sort(key=lambda x: x.get('finished', ''))
+            running_tasks.sort(key=lambda x: x.get('started', ''))
+            pending_tasks.sort(key=lambda x: x.get('name', ''))
+            for task in [*completed_tasks, *running_tasks, *pending_tasks]:
+                models.append(cac.model.Model(task))
+
+        # Print all models as a single table
+        printer.print_models(models)
+        return 0
 
     def _convert_to_local_time(self, timestamp):
         """

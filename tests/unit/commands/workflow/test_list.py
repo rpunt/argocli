@@ -93,12 +93,12 @@ class TestWorkflowList:
         assert len(models) == 1
         assert models[0].name == "workflow-1"
 
-    @patch("builtins.print")
-    def test_execute_no_workflows(self, mock_print):
+    def test_execute_no_workflows(self):
         """Test execution when no workflows are found."""
         # Setup
         args = MagicMock()
         args.name = None
+        self.command.log = MagicMock()
 
         # Mock client response
         self.command.argo_client.list_workflows.return_value = []
@@ -108,14 +108,14 @@ class TestWorkflowList:
 
         # Assertions
         self.command.argo_client.list_workflows.assert_called_once()
-        mock_print.assert_called_once_with("No workflows found.")
+        self.command.log.info.assert_called_once_with("No workflows found.")
 
-    @patch("builtins.print")
-    def test_execute_no_matching_workflows(self, mock_print):
+    def test_execute_no_matching_workflows(self):
         """Test execution when no workflows match the filter."""
         # Setup
         args = MagicMock()
         args.name = "nonexistent"
+        self.command.log = MagicMock()
 
         # Mock client response
         workflows = [
@@ -129,4 +129,6 @@ class TestWorkflowList:
 
         # Assertions
         self.command.argo_client.list_workflows.assert_called_once()
-        mock_print.assert_called_once_with("No workflows found matching 'nonexistent'.")
+        self.command.log.info.assert_called_once_with(
+            "No workflows found matching '%s'.", "nonexistent"
+        )

@@ -46,10 +46,7 @@ class WorkflowBrowse(ArgoWorkflowCommand):
         client = self.argo_client
         workflow = client.get_workflow(args.name)
 
-        if not workflow:
-            self.log.error("Workflow '%s' not found.", args.name)
-            return
-
         # Open the workflow in the default web browser
         workflow_url = f"{client.server}/workflows/{client.namespace}/{workflow['metadata']['name']}"
         webbrowser.open(workflow_url)
+        return 0
