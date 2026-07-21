@@ -1,0 +1,8 @@
+{
+  // Pin the editor's Python interpreter to the project virtualenv so Pylance
+  // resolves imports (cac_core, jira, ...) the same way the CLI pyright does
+  // (see [tool.pyright] venvPath/venv in pyproject.toml). Without this, Pylance
+  // may analyze against the wrong interpreter and report false positives such
+  // as "Cannot access attribute ... for class 'object'".
+  "python.defaultInterpreterPath": "${workspaceFolder}/.venv/bin/python"
+}
