@@ -1,6 +1,6 @@
 [project]
 name = "argocli"
-version = "0.4.0"
+dynamic = ["version"]
 description = "A command-line interface for Argo Workflows"
 readme = "README.md"
 requires-python = ">=3.12"
@@ -18,6 +18,19 @@ test = [
 
 [project.scripts]
 argocli = "argocli:main"
+
+[build-system]
+requires = ["setuptools>=61.0", "setuptools-scm>=8"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools_scm]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["argocli*"]
+
+[tool.setuptools.package-data]
+"argocli" = ["config/*.yaml"]
 
 [tool.uv]
 package = true
