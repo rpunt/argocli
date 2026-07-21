@@ -32,13 +32,12 @@ class WorkflowList(ArgoWorkflowCommand):
 
     def execute(self, args):
         """
-        Execute the command to check the workflow status.
+        Execute the command to list workflows.
         """
-        client = self.argo_client
-        workflows = client.list_workflows()
+        workflows = self.argo_client.list_workflows()
         if not workflows:
-            print("No workflows found.")
-            return
+            self.log.info("No workflows found.")
+            return 0
 
         models = []
         # Filter workflows if name is provided (fuzzy match)
@@ -63,8 +62,9 @@ class WorkflowList(ArgoWorkflowCommand):
             models.append(model)
 
         if not models and filter_name:
-            print(f"No workflows found matching '{args.name}'.")
-            return
+            self.log.info("No workflows found matching '%s'.", args.name)
+            return 0
 
         printer = cac.output.Output(args)
         printer.print_models(models)
+        return 0

@@ -1,27 +1,17 @@
 # pylint: disable=missing-module-docstring
 """
 Pytest configuration for argocli tests.
+
+Mocks are set up at module level so they take effect before argocli
+initializes on first command instantiation.
 """
 
-# These imports will be installed when running pytest
-# pylint: disable=import-error
-from unittest.mock import MagicMock
-import pytest
+import os
+from unittest.mock import patch
 
-@pytest.fixture
-def mock_config():
-    """
-    Mock configuration object for testing.
-    """
-    mock = MagicMock()
-    mock.server = "https://argo-server.example.com"
-    mock.namespace = "test-namespace"
-    mock.username = "test-user"
-    return mock
+os.environ.setdefault("ARGOCLI_SERVER", "https://argo-server.example.com")
+os.environ.setdefault("ARGOCLI_NAMESPACE", "test-namespace")
+os.environ.setdefault("ARGOCLI_USERNAME", "test@example.com")
 
-@pytest.fixture
-def mock_logger():
-    """
-    Mock logger object for testing.
-    """
-    return MagicMock()
+patch("keyring.get_password", return_value="fake-api-token").start()
+patch("cac_core.updatechecker.check_package_for_updates").start()
